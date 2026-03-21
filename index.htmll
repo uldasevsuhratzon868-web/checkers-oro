@@ -1,0 +1,1127 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Checkers Pro - LANGUAGES FIXED</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden}
+body{font-family:Arial,sans-serif;display:flex;flex-direction:column;align-items:center;background:linear-gradient(135deg,#0f0f1a 0%,#1a1a2e 100%);color:#fff;padding:5px;user-select:none}
+#status{font-size:1.1em;font-weight:bold;color:#f1c40f;padding:8px;background:rgba(255,255,255,0.1);border-radius:6px;margin:5px 0;text-align:center;width:95%;max-width:400px}
+#fukMessage{display:none;background:#e74c3c;color:#fff;padding:8px;border-radius:6px;margin:5px 0;text-align:center;font-weight:bold;animation:pulse 0.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+.board{display:grid;grid-template-columns:repeat(8,1fr);grid-template-rows:repeat(8,1fr);border:3px solid #5d4037;background:#3d2817;width:95vw;max-width:400px;aspect-ratio:1/1;margin:5px 0}
+.cell{display:flex;justify-content:center;align-items:center;font-size:28px;cursor:pointer;position:relative}
+.white-cell{background:#f0d9b5}.black-cell{background:#b58863}
+.selected{background:#7b61ff!important}
+.valid{background:#a8e6cf!important}
+.valid::after{content:'';position:absolute;width:10px;height:10px;background:green;border-radius:50%}
+.piece{width:85%;height:85%;display:flex;justify-content:center;align-items:center;font-size:24px;pointer-events:none;position:relative}
+.avatar-frame{position:absolute;top:-5px;left:-5px;right:-5px;bottom:-5px;border:3px solid #f1c40f;border-radius:50%;pointer-events:none}
+.controls{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;width:95%;max-width:400px;margin:5px 0}
+button{padding:10px;font-size:0.8em;border:none;border-radius:6px;cursor:pointer;font-weight:bold;background:#2980b9;color:#fff;min-height:45px}
+button:active{transform:scale(0.95)}
+.btn-new{background:#27ae60}.btn-stats{background:#16a085}.btn-ai{background:#2980b9}.btn-ai.active{background:#8e44ad}
+.btn-sound{background:#f39c12}.btn-lang{background:#9b59b6}.btn-rules{background:#3498db}
+.btn-donate{background:linear-gradient(135deg,#f1c40f,#f39c12);color:#000}.btn-settings{background:#8e44ad}.btn-theme{background:#1abc9c}
+.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);display:none;justify-content:center;align-items:center;z-index:2000}
+.modal.active{display:flex}
+.modal-content{background:#1a1a2e;padding:15px;border-radius:8px;max-width:95%;width:350px;max-height:80vh;overflow-y:auto;border:2px solid #f1c40f}
+.modal-content h2{color:#f1c40f;margin-bottom:10px;text-align:center}
+.theme-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;margin:10px 0}
+.theme-opt{padding:5px;border-radius:4px;cursor:pointer;text-align:center;border:2px solid transparent;font-size:0.7em;height:50px;display:flex;align-items:center;justify-content:center}
+.theme-opt:active{transform:scale(0.95)}.theme-opt.active{border-color:#f1c40f}
+.rules-section{margin:10px 0;padding:10px;background:rgba(52,152,219,0.1);border-radius:6px;border-left:3px solid #3498db}
+.rules-section h3{color:#3498db;margin-bottom:5px;font-size:0.95em}
+.rules-section p,.rules-section ul{font-size:0.8em;line-height:1.5;color:#bdc3c7}
+.rules-section ul{margin-left:20px}
+.modal-close{margin-top:10px;width:100%;background:#27ae60;color:#fff;padding:10px;border:none;border-radius:5px;cursor:pointer;font-size:0.9em}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.stat-item{background:rgba(52,152,219,0.1);padding:10px;border-radius:6px;text-align:center}
+.stat-value{font-size:1.6em;font-weight:bold;color:#3498db}
+.stat-label{font-size:0.75em;color:#95a5a6}
+.setting-row{display:flex;justify-content:space-between;align-items:center;margin:8px 0}
+.setting-row select{padding:5px;border-radius:4px;border:none;background:#2a2a4a;color:#fff;font-size:0.85em}
+.sh01{border-radius:50%}.sh02{border-radius:4px}.sh03{clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}.sh04{clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%)}.sh05{clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)}.sh06{clip-path:polygon(30% 0%,70% 0%,100% 30%,100% 70%,70% 100%,30% 100%,0% 70%,0% 30%)}.sh07{clip-path:polygon(50% 0%,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}.sh08{clip-path:polygon(50% 0%,0% 100%,100% 100%)}.sh09{clip-path:polygon(50% 0%,100% 0%,50% 100%,0% 0%)}.sh10{clip-path:polygon(40% 0%,60% 0%,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0% 60%,0% 40%,40% 40%)}.sh11{clip-path:polygon(20% 0%,80% 0%,100% 20%,100% 80%,80% 100%,20% 100%,0% 80%,0% 20%)}.sh12{clip-path:polygon(50% 0%,90% 20%,100% 60%,75% 100%,25% 100%,0% 60%,10% 20%)}.sh13{clip-path:polygon(25% 0%,75% 0%,100% 50%,75% 100%,25% 100%,0% 50%)}.sh14{clip-path:polygon(0% 0%,100% 0%,50% 50%,100% 100%,0% 100%,50% 50%)}.sh15{clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}.sh16{clip-path:polygon(35% 0%,65% 0%,100% 35%,100% 65%,65% 100%,35% 100%,0% 65%,0% 35%)}.sh17{clip-path:polygon(50% 0%,100% 100%,0% 100%)}.sh18{clip-path:polygon(0% 50%,50% 0%,100% 50%,50% 100%)}.sh19{clip-path:polygon(20% 20%,80% 20%,80% 80%,20% 80%)}.sh20{clip-path:polygon(30% 10%,70% 10%,90% 50%,70% 90%,30% 90%,10% 50%)}.sh21{clip-path:polygon(50% 0%,100% 25%,75% 50%,100% 75%,50% 100%,0% 75%,25% 50%,0% 25%)}.sh22{clip-path:polygon(40% 0%,60% 0%,60% 40%,100% 40%,100% 60%,60% 60%,60% 100%,40% 100%,40% 60%,0% 60%,0% 40%,40% 40%)}.sh23{clip-path:polygon(50% 0%,100% 50%,50% 100%,50% 100%,0% 50%,50% 0%)}.sh24{clip-path:polygon(30% 0%,70% 0%,100% 50%,70% 100%,30% 100%,0% 50%)}.sh25{clip-path:polygon(50% 0%,90% 20%,100% 60%,75% 100%,25% 100%,0% 60%,10% 20%)}.sh26{clip-path:polygon(25% 25%,75% 25%,75% 75%,25% 75%)}.sh27{clip-path:polygon(50% 0%,63% 25%,95% 25%,70% 45%,82% 75%,50% 58%,18% 75%,30% 45%,5% 25%,37% 25%)}.sh28{clip-path:polygon(50% 0%,100% 38%,82% 100%,18% 100%,0% 38%)}.sh29{clip-path:polygon(20% 0%,80% 0%,100% 100%,0% 100%)}.sh30{clip-path:polygon(50% 0%,100% 50%,50% 100%,0% 50%)}
+</style>
+</head>
+<body>
+
+<div id="status" data-key="status">Ваш ход! ⚪</div>
+<div id="fukMessage" data-key="fukMessage">⚠️ ФУК! Нажмите на красную шашку чтобы снять!</div>
+<div class="board" id="board"></div>
+
+<div class="controls">
+  <button class="btn-new" onclick="resetGame()" data-key="btnNew">🔄 Новая</button>
+  <button class="btn-stats" onclick="openModal('stats')" data-key="btnStats">📊 Стат</button>
+  <button class="btn-ai" id="btnAi" onclick="toggleMode()" data-key="btnAI">🤖 ИИ</button>
+  <button class="btn-sound" id="btnSound" onclick="toggleSound()" data-key="btnSound">🔊 Звук</button>
+  <button class="btn-lang" onclick="openModal('language')" data-key="btnLang">🌐 Язык</button>
+  <button class="btn-settings" onclick="openModal('settings')" data-key="btnSettings">⚙️ Настр</button>
+  <button class="btn-donate" onclick="openModal('donate')" data-key="btnDonate">💝 Донат</button>
+  <button class="btn-rules" onclick="openModal('rules')" data-key="btnRules">📚 Правила</button>
+  <button class="btn-theme" onclick="openModal('board')" data-key="btnBoard">🎨 Доска</button>
+  <button class="btn-theme" onclick="openModal('piece')" data-key="btnPiece">♟️ Цвет</button>
+  <button class="btn-theme" onclick="openModal('shapes')" data-key="btnShape">◈ Форма</button>
+</div>
+
+<!-- STATS MODAL -->
+<div class="modal" id="statsModal">
+  <div class="modal-content">
+    <h2 data-key="statsTitle">📊 Статистика</h2>
+    <div class="stats-grid">
+      <div class="stat-item"><div class="stat-value" id="statTotal">0</div><div class="stat-label" data-key="statTotal">Всего игр</div></div>
+      <div class="stat-item"><div class="stat-value" id="statWins">0</div><div class="stat-label" data-key="statWins">Побед</div></div>
+      <div class="stat-item"><div class="stat-value" id="statLosses">0</div><div class="stat-label" data-key="statLosses">Поражений</div></div>
+      <div class="stat-item"><div class="stat-value" id="statDraws">0</div><div class="stat-label" data-key="statDraws">Ничьих</div></div>
+      <div class="stat-item"><div class="stat-value" id="statWinRate">0%</div><div class="stat-label" data-key="statWinRate">Побед %</div></div>
+      <div class="stat-item"><div class="stat-value" id="statStreak">0</div><div class="stat-label" data-key="statStreak">Серия</div></div>
+    </div>
+    <button class="modal-close" onclick="closeModal('statsModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- SETTINGS MODAL -->
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
+    <h2 data-key="settingsTitle">⚙️ Настройки</h2>
+    <div class="setting-row">
+      <label data-key="soundLabel">Звук:</label>
+      <select id="sfxVolume" onchange="updateSFXVolume()">
+        <option value="0" data-key="off">Выкл</option>
+        <option value="50">50%</option>
+        <option value="100">100%</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label data-key="fukRuleLabel">Правило ФУК:</label>
+      <select id="fukRule" onchange="updateFukRule()">
+        <option value="on" data-key="on">✅ ВКЛ</option>
+        <option value="off" data-key="off">❌ ВЫКЛ</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label data-key="aiDifficultyLabel">Сложность ИИ:</label>
+      <select id="aiDifficulty" onchange="updateAIDifficulty()">
+        <option value="1" data-key="easy">Легко</option>
+        <option value="3" data-key="medium">Средне</option>
+        <option value="5" data-key="hard">Сложно</option>
+        <option value="8" data-key="grandmaster">Гроссмейстер</option>
+      </select>
+    </div>
+    <div class="setting-row">
+      <label data-key="avatarFrameLabel">Рамка аватара:</label>
+      <select id="avatarFrame" onchange="updateAvatarFrame()">
+        <option value="none" data-key="none">Нет</option>
+        <option value="gold" data-key="gold">🥇 Золото</option>
+        <option value="silver" data-key="silver">🥈 Серебро</option>
+        <option value="bronze" data-key="bronze">🥉 Бронза</option>
+        <option value="diamond" data-key="diamond">💎 Алмаз</option>
+      </select>
+    </div>
+    <button class="modal-close" onclick="closeModal('settingsModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- DONATE MODAL -->
+<div class="modal" id="donateModal">
+  <div class="modal-content">
+    <h2 data-key="donateTitle">💝 Поддержка</h2>
+    <div class="rules-section"><p data-key="donateText">Ваша поддержка помогает развивать игру!</p></div>
+    <div class="theme-grid">
+      <button class="theme-opt" onclick="donate(1)" style="background:#f1c40f;color:#000">$1</button>
+      <button class="theme-opt" onclick="donate(3)" style="background:#f1c40f;color:#000">$3</button>
+      <button class="theme-opt" onclick="donate(5)" style="background:#f1c40f;color:#000">$5</button>
+      <button class="theme-opt" onclick="donate(10)" style="background:#f1c40f;color:#000">$10</button>
+      <button class="theme-opt" onclick="donate(20)" style="background:#f1c40f;color:#000">$20</button>
+      <button class="theme-opt" onclick="donate(50)" style="background:#f1c40f;color:#000">$50</button>
+      <button class="theme-opt" onclick="donate(100)" style="background:#f1c40f;color:#000">$100</button>
+      <button class="theme-opt" onclick="donate(150)" style="background:#f1c40f;color:#000">$150</button>
+      <button class="theme-opt" onclick="donate(200)" style="background:#f1c40f;color:#000">$200</button>
+      <button class="theme-opt" onclick="donate(250)" style="background:#f1c40f;color:#000">$250</button>
+    </div>
+    <button class="modal-close" onclick="closeModal('donateModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- RULES MODAL -->
+<div class="modal" id="rulesModal">
+  <div class="modal-content">
+    <h2 data-key="rulesTitle">📚 Правила Игры</h2>
+    <div class="rules-section">
+      <h3 data-key="rulesGoal">🎯 Цель</h3>
+      <p data-key="rulesGoalText">Съесть все шашки соперника или заблокировать их ходы.</p>
+    </div>
+    <div class="rules-section">
+      <h3 data-key="rulesFuk">⚠️ Правило ФУК</h3>
+      <ul>
+        <li data-key="rulesFuk1">Если не побил когда мог</li>
+        <li data-key="rulesFuk2">Соперник снимает твою шашку</li>
+        <li data-key="rulesFuk3">Шашка подсвечивается красным</li>
+        <li data-key="rulesFuk4">Нажми на неё чтобы снять</li>
+      </ul>
+    </div>
+    <button class="modal-close" onclick="closeModal('rulesModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- LANGUAGE MODAL -->
+<div class="modal" id="languageModal">
+  <div class="modal-content">
+    <h2 data-key="languageTitle">🌐 Язык / Language</h2>
+    <div class="theme-grid">
+      <button class="theme-opt" onclick="setLanguage('ru')" style="background:#2a2a4a">🇷🇺 RU</button>
+      <button class="theme-opt" onclick="setLanguage('en')" style="background:#2a2a4a">🇺🇸 EN</button>
+      <button class="theme-opt" onclick="setLanguage('es')" style="background:#2a2a4a">🇪🇸 ES</button>
+      <button class="theme-opt" onclick="setLanguage('fr')" style="background:#2a2a4a">🇫🇷 FR</button>
+      <button class="theme-opt" onclick="setLanguage('de')" style="background:#2a2a4a">🇩🇪 DE</button>
+    </div>
+    <button class="modal-close" onclick="closeModal('languageModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- SHAPES MODAL -->
+<div class="modal" id="shapesModal">
+  <div class="modal-content">
+    <h2 data-key="shapesTitle">◈ 30 Форм Шашек</h2>
+    <div class="theme-grid" id="shapesGrid"></div>
+    <button class="modal-close" onclick="closeModal('shapesModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- BOARD MODAL -->
+<div class="modal" id="boardModal">
+  <div class="modal-content">
+    <h2 data-key="boardTitle">🎨 20 Тем Доски</h2>
+    <div class="theme-grid" id="boardThemesGrid"></div>
+    <button class="modal-close" onclick="closeModal('boardModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<!-- PIECE MODAL -->
+<div class="modal" id="pieceModal">
+  <div class="modal-content">
+    <h2 data-key="pieceTitle">♟️ 20 Цветов Шашек</h2>
+    <div class="theme-grid" id="pieceThemesGrid"></div>
+    <button class="modal-close" onclick="closeModal('pieceModal')" data-key="closeBtn">Закрыть</button>
+  </div>
+</div>
+
+<script>
+// === TRANSLATIONS - ALL 5 LANGUAGES ===
+const TEXT = {
+  ru: {
+    status: 'Ваш ход! ⚪', aiTurn: 'ИИ думает... ⚫', whiteTurn: 'Ход белых ⚪', blackTurn: 'Ход чёрных ⚫',
+    victory: '🏆 ПОБЕДА!', defeat: '💀 ПОРАЖЕНИЕ', draw: '🤝 НИЧЬЯ!',
+    fukMessage: '⚠️ ФУК! Нажмите на красную шашку чтобы снять!',
+    btnNew: '🔄 Новая', btnStats: '📊 Стат', btnAI: '🤖 ИИ', btnSound: '🔊 Звук', btnLang: '🌐 Язык',
+    btnSettings: '⚙️ Настр', btnDonate: '💝 Донат', btnRules: '📚 Правила', btnBoard: '🎨 Доска',
+    btnPiece: '♟️ Цвет', btnShape: '◈ Форма', statsTitle: '📊 Статистика', statTotal: 'Всего игр',
+    statWins: 'Побед', statLosses: 'Поражений', statDraws: 'Ничьих', statWinRate: 'Побед %', statStreak: 'Серия',
+    settingsTitle: '⚙️ Настройки', soundLabel: 'Звук:', fukRuleLabel: 'Правило ФУК:',
+    aiDifficultyLabel: 'Сложность ИИ:', avatarFrameLabel: 'Рамка аватара:',
+    easy: 'Легко', medium: 'Средне', hard: 'Сложно', grandmaster: 'Гроссмейстер',
+    none: 'Нет', gold: '🥇 Золото', silver: '🥈 Серебро', bronze: '🥉 Бронза', diamond: '💎 Алмаз',
+    on: '✅ ВКЛ', off: '❌ ВЫКЛ', donateTitle: '💝 Поддержка', donateText: 'Ваша поддержка помогает развивать игру!',
+    rulesTitle: '📚 Правила Игры', rulesGoal: '🎯 Цель', rulesGoalText: 'Съесть все шашки соперника или заблокировать их ходы.',
+    rulesFuk: '⚠️ Правило ФУК', rulesFuk1: 'Если не побил когда мог', rulesFuk2: 'Соперник снимает твою шашку',
+    rulesFuk3: 'Шашка подсвечивается красным', rulesFuk4: 'Нажми на неё чтобы снять',
+    languageTitle: '🌐 Язык / Language', shapesTitle: '◈ 30 Форм Шашек', boardTitle: '🎨 20 Тем Доски',
+    pieceTitle: '♟️ 20 Цветов Шашек', closeBtn: 'Закрыть'
+  },
+  en: {
+    status: 'Your turn! ⚪', aiTurn: 'AI thinking... ⚫', whiteTurn: 'White turn ⚪', blackTurn: 'Black turn ⚫',
+    victory: '🏆 VICTORY!', defeat: '💀 DEFEAT!', draw: '🤝 DRAW!',
+    fukMessage: '⚠️ FUK! Click red piece to remove!',
+    btnNew: '🔄 New', btnStats: '📊 Stats', btnAI: '🤖 AI', btnSound: '🔊 Sound', btnLang: '🌐 Lang',
+    btnSettings: '⚙️ Settings', btnDonate: '💝 Donate', btnRules: '📚 Rules', btnBoard: '🎨 Board',
+    btnPiece: '♟️ Color', btnShape: '◈ Shape', statsTitle: '📊 Statistics', statTotal: 'Total games',
+    statWins: 'Wins', statLosses: 'Losses', statDraws: 'Draws', statWinRate: 'Win %', statStreak: 'Streak',
+    settingsTitle: '⚙️ Settings', soundLabel: 'Sound:', fukRuleLabel: 'FUK Rule:',
+    aiDifficultyLabel: 'AI Difficulty:', avatarFrameLabel: 'Avatar Frame:',
+    easy: 'Easy', medium: 'Medium', hard: 'Hard', grandmaster: 'Grandmaster',
+    none: 'None', gold: '🥇 Gold', silver: '🥈 Silver', bronze: '🥉 Bronze', diamond: '💎 Diamond',
+    on: '✅ ON', off: '❌ OFF', donateTitle: '💝 Support', donateText: 'Your support helps develop the game!',
+    rulesTitle: '📚 Game Rules', rulesGoal: '🎯 Goal', rulesGoalText: 'Capture all pieces or block moves.',
+    rulesFuk: '⚠️ FUK Rule', rulesFuk1: 'If you did not capture when possible', rulesFuk2: 'Opponent removes your piece',
+    rulesFuk3: 'Piece glows red', rulesFuk4: 'Click it to remove',
+    languageTitle: '🌐 Language', shapesTitle: '◈ 30 Piece Shapes', boardTitle: '🎨 20 Board Themes',
+    pieceTitle: '♟️ 20 Piece Colors', closeBtn: 'Close'
+  },
+  es: {
+    status: '¡Tu turno! ⚪', aiTurn: 'IA piensa... ⚫', whiteTurn: 'Turno blancas ⚪', blackTurn: 'Turno negras ⚫',
+    victory: '🏆 ¡VICTORIA!', defeat: '💀 ¡DERROTA!', draw: '🤝 ¡EMPATE!',
+    fukMessage: '⚠️ ¡FUK! ¡Haz clic en la pieza roja!',
+    btnNew: '🔄 Nueva', btnStats: '📊 Stats', btnAI: '🤖 IA', btnSound: '🔊 Sonido', btnLang: '🌐 Idioma',
+    btnSettings: '⚙️ Ajustes', btnDonate: '💝 Donar', btnRules: '📚 Reglas', btnBoard: '🎨 Tablero',
+    btnPiece: '♟️ Color', btnShape: '◈ Forma', statsTitle: '📊 Estadísticas', statTotal: 'Total juegos',
+    statWins: 'Victorias', statLosses: 'Derrotas', statDraws: 'Empates', statWinRate: 'Victorias %', statStreak: 'Racha',
+    settingsTitle: '⚙️ Ajustes', soundLabel: 'Sonido:', fukRuleLabel: 'Regla FUK:',
+    aiDifficultyLabel: 'Dificultad IA:', avatarFrameLabel: 'Marco avatar:',
+    easy: 'Fácil', medium: 'Medio', hard: 'Difícil', grandmaster: 'Gran Maestro',
+    none: 'Ninguno', gold: '🥇 Oro', silver: '🥈 Plata', bronze: '🥉 Bronce', diamond: '💎 Diamante',
+    on: '✅ ON', off: '❌ OFF', donateTitle: '💝 Apoyo', donateText: '¡Tu apoyo ayuda a desarrollar el juego!',
+    rulesTitle: '📚 Reglas del Juego', rulesGoal: '🎯 Objetivo', rulesGoalText: 'Capturar todas las piezas o bloquear movimientos.',
+    rulesFuk: '⚠️ Regla FUK', rulesFuk1: 'Si no capturaste cuando podías', rulesFuk2: 'El oponente quita tu pieza',
+    rulesFuk3: 'La pieza brilla en rojo', rulesFuk4: 'Haz clic para quitar',
+    languageTitle: '🌐 Idioma', shapesTitle: '◈ 30 Formas de Piezas', boardTitle: '🎨 20 Temas de Tablero',
+    pieceTitle: '♟️ 20 Colores de Piezas', closeBtn: 'Cerrar'
+  },
+  fr: {
+    status: 'Votre tour! ⚪', aiTurn: 'IA pense... ⚫', whiteTurn: 'Tour blancs ⚪', blackTurn: 'Tour noirs ⚫',
+    victory: '🏆 VICTOIRE!', defeat: '💀 DÉFAITE!', draw: '🤝 NUL!',
+    fukMessage: '⚠️ FUK! Cliquez sur la pièce rouge!',
+    btnNew: '🔄 Nouveau', btnStats: '📊 Stats', btnAI: '🤖 IA', btnSound: '🔊 Son', btnLang: '🌐 Langue',
+    btnSettings: '⚙️ Réglages', btnDonate: '💝 Donner', btnRules: '📚 Règles', btnBoard: '🎨 Plateau',
+    btnPiece: '♟️ Couleur', btnShape: '◈ Forme', statsTitle: '📊 Statistiques', statTotal: 'Total jeux',
+    statWins: 'Victoires', statLosses: 'Défaites', statDraws: 'Nuls', statWinRate: 'Victoires %', statStreak: 'Série',
+    settingsTitle: '⚙️ Réglages', soundLabel: 'Son:', fukRuleLabel: 'Règle FUK:',
+    aiDifficultyLabel: 'Difficulté IA:', avatarFrameLabel: 'Cadre avatar:',
+    easy: 'Facile', medium: 'Moyen', hard: 'Difficile', grandmaster: 'Grand Maître',
+    none: 'Aucun', gold: '🥇 Or', silver: '🥈 Argent', bronze: '🥉 Bronze', diamond: '💎 Diamant',
+    on: '✅ ON', off: '❌ OFF', donateTitle: '💝 Soutien', donateText: 'Votre soutien aide à développer le jeu!',
+    rulesTitle: '📚 Règles du Jeu', rulesGoal: '🎯 But', rulesGoalText: 'Capturer toutes les pièces ou bloquer les coups.',
+    rulesFuk: '⚠️ Règle FUK', rulesFuk1: 'Si vous n\'avez pas capturé quand possible', rulesFuk2: 'L\'adversaire retire votre pièce',
+    rulesFuk3: 'La pièce brille en rouge', rulesFuk4: 'Cliquez pour retirer',
+    languageTitle: '🌐 Langue', shapesTitle: '◈ 30 Formes de Pièces', boardTitle: '🎨 20 Thèmes de Plateau',
+    pieceTitle: '♟️ 20 Couleurs de Pièces', closeBtn: 'Fermer'
+  },
+  de: {
+    status: 'Dein Zug! ⚪', aiTurn: 'KI denkt... ⚫', whiteTurn: 'Weiße am Zug ⚪', blackTurn: 'Schwarze am Zug ⚫',
+    victory: '🏆 SIEG!', defeat: '💀 NIEDERLAGE!', draw: '🤝 UNENTSCHIEDEN!',
+    fukMessage: '⚠️ FUK! Klicke rotes Stück!',
+    btnNew: '🔄 Neu', btnStats: '📊 Stats', btnAI: '🤖 KI', btnSound: '🔊 Ton', btnLang: '🌐 Sprache',
+    btnSettings: '⚙️ Einstellungen', btnDonate: '💝 Spenden', btnRules: '📚 Regeln', btnBoard: '🎨 Brett',
+    btnPiece: '♟️ Farbe', btnShape: '◈ Form', statsTitle: '📊 Statistik', statTotal: 'Spiele gesamt',
+    statWins: 'Siege', statLosses: 'Niederlagen', statDraws: 'Unentschieden', statWinRate: 'Siege %', statStreak: 'Serie',
+    settingsTitle: '⚙️ Einstellungen', soundLabel: 'Ton:', fukRuleLabel: 'FUK Regel:',
+    aiDifficultyLabel: 'KI Schwierigkeit:', avatarFrameLabel: 'Avatar Rahmen:',
+    easy: 'Leicht', medium: 'Mittel', hard: 'Schwer', grandmaster: 'Großmeister',
+    none: 'Keine', gold: '🥇 Gold', silver: '🥈 Silber', bronze: '🥉 Bronze', diamond: '💎 Diamant',
+    on: '✅ AN', off: '❌ AUS', donateTitle: '💝 Unterstützung', donateText: 'Deine Unterstützung hilft das Spiel zu entwickeln!',
+    rulesTitle: '📚 Spielregeln', rulesGoal: '🎯 Ziel', rulesGoalText: 'Alle Steine schlagen oder Züge blockieren.',
+    rulesFuk: '⚠️ FUK Regel', rulesFuk1: 'Wenn du nicht geschlagen hast als möglich', rulesFuk2: 'Gegner entfernt deinen Stein',
+    rulesFuk3: 'Stein leuchtet rot', rulesFuk4: 'Klicke zum Entfernen',
+    languageTitle: '🌐 Sprache', shapesTitle: '◈ 30 Steinformen', boardTitle: '🎨 20 Brettthemen',
+    pieceTitle: '♟️ 20 Steinfarben', closeBtn: 'Schließen'
+  }
+};
+
+// === GAME DATA ===
+let board = [], selected = null, turn = 1, aiEnabled = true, captureChain = null;
+let gameOver = false, isProcessing = false, soundEnabled = true;
+let audioCtx = null, audioInitialized = false;
+let cellsCache = [], currentBoard = 0, currentPiece = 0, currentShape = 0;
+let moveHistory = [], stats = {total:0,wins:0,losses:0,draws:0,streak:0,bestStreak:0};
+let sfxVolume = 100, fukRuleEnabled = true, currentLang = 'ru';
+let fukAvailable = false, fukPiecePosition = null;
+let aiDifficulty = 5;
+let avatarFrame = 'none';
+let capturesAvailableAtStart = false;
+let aiTimeoutId = null;
+
+// === 30 SHAPES ===
+const SHAPES = [];
+for(let i=1; i<=30; i++) SHAPES.push('sh'+String(i).padStart(2,'0'));
+
+// === 20 BOARD THEMES ===
+const boardThemes = [
+  ['#f0d9b5','#b58863'], ['#e3f2fd','#1976d2'], ['#e8f5e9','#388e3c'],
+  ['#424242','#212121'], ['#f3e5f5','#7b1fa2'], ['#e0f7fa','#00838f'],
+  ['#fff3e0','#e65100'], ['#fce4ec','#880e4f'], ['#f1f8e9','#33691e'],
+  ['#e8eaf6','#1a237e'], ['#efebe9','#3e2723'], ['#f9fbe7','#827717'],
+  ['#ffecb3','#ff6f00'], ['#b2dfdb','#00695c'], ['#d1c4e9','#4527a0'],
+  ['#ffcdd2','#b71c1c'], ['#c8e6c9','#1b5e20'], ['#bbdefb','#0d47a1'],
+  ['#f8bbd0','#880e4f'], ['#d7ccc8','#3e2723']
+];
+
+// === 20 PIECE COLORS ===
+const pieceThemes = [
+  ['#fff','#333'], ['#ffd700','#b8860b'], ['#ff6b6b','#8b0000'],
+  ['#74b9ff','#2d3436'], ['#55efc4','#006266'], ['#a29bfe','#2d1b4e'],
+  ['#ff9ff3','#c0392b'], ['#54a0ff','#2e86de'], ['#1dd1a1','#10ac84'],
+  ['#ffa502','#e67e22'], ['#ff6348','#d63031'], ['#7bed9f','#20bf6b'],
+  ['#c44569','#f78fb3'], ['#5758bb','#8076a3'], ['#3dc1d3','#0fb9b1'],
+  ['#f0932b','#eb4d4b'], ['#6ab04c','#badc58'], ['#4b7bec','#45aaf2'],
+  ['#a55eea','#8854d0'], ['#26de81','#20bf6b']
+];
+
+// === LOAD/SAVE ===
+function loadData() {
+  try {
+    stats = JSON.parse(localStorage.getItem('stats') || '{"total":0,"wins":0,"losses":0,"draws":0,"streak":0,"bestStreak":0}');
+    sfxVolume = parseInt(localStorage.getItem('sfxVolume') || '100');
+    fukRuleEnabled = localStorage.getItem('fukRule') !== 'off';
+    currentBoard = parseInt(localStorage.getItem('currentBoard') || '0');
+    currentPiece = parseInt(localStorage.getItem('currentPiece') || '0');
+    currentShape = parseInt(localStorage.getItem('currentShape') || '0');
+    currentLang = localStorage.getItem('currentLang') || 'ru';
+    aiDifficulty = parseInt(localStorage.getItem('aiDifficulty') || '5');
+    avatarFrame = localStorage.getItem('avatarFrame') || 'none';
+  } catch(e) {}
+}
+
+function saveData() {
+  try {
+    localStorage.setItem('stats', JSON.stringify(stats));
+    localStorage.setItem('sfxVolume', sfxVolume);
+    localStorage.setItem('fukRule', fukRuleEnabled ? 'on' : 'off');
+    localStorage.setItem('currentBoard', currentBoard);
+    localStorage.setItem('currentPiece', currentPiece);
+    localStorage.setItem('currentShape', currentShape);
+    localStorage.setItem('currentLang', currentLang);
+    localStorage.setItem('aiDifficulty', aiDifficulty);
+    localStorage.setItem('avatarFrame', avatarFrame);
+  } catch(e) {}
+}
+
+// === AUDIO ===
+function initAudio() {
+  if (audioInitialized) return true;
+  try {
+    audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+    audioInitialized = true;
+    return true;
+  } catch(e) { return false; }
+}
+
+function playSound(freq, dur, type) {
+  if (!soundEnabled || !initAudio()) return;
+  try {
+    const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+    osc.type = type||'sine'; osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.3*(sfxVolume/100), audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + dur);
+    osc.start(); osc.stop(audioCtx.currentTime + dur);
+  } catch(e) {}
+}
+
+function playMove() { playSound(523, 0.1, 'sine'); }
+function playCapture() { playSound(784, 0.15, 'square'); }
+function playWin() { [523,659,784,1047].forEach((f,i)=>setTimeout(()=>playSound(f,0.2,'triangle'),i*120)); }
+function playFuk() { playSound(600, 0.4, 'square'); }
+
+// === TRANSLATION SYSTEM - FIXED ===
+function translatePage() {
+  const t = TEXT[currentLang] || TEXT.ru;
+  console.log('🌐 Translating to:', currentLang);
+  
+  // Translate ALL elements with data-key attribute
+  document.querySelectorAll('[data-key]').forEach(el => {
+    const key = el.getAttribute('data-key');
+    if (t[key]) {
+      el.textContent = t[key];
+    }
+  });
+  
+  // Translate select options
+  translateSelectOptions();
+  
+  // Update status
+  updateStatus();
+  console.log('✅ Translation complete!');
+}
+
+function translateSelectOptions() {
+  const t = TEXT[currentLang] || TEXT.ru;
+  
+  // AI Difficulty
+  const aiDiffSelect = document.getElementById('aiDifficulty');
+  if (aiDiffSelect) {
+    const options = aiDiffSelect.querySelectorAll('option');
+    if (options[0]) options[0].textContent = t.easy;
+    if (options[1]) options[1].textContent = t.medium;
+    if (options[2]) options[2].textContent = t.hard;
+    if (options[3]) options[3].textContent = t.grandmaster;
+  }
+  
+  // Avatar Frame
+  const avatarFrameSelect = document.getElementById('avatarFrame');
+  if (avatarFrameSelect) {
+    const options = avatarFrameSelect.querySelectorAll('option');
+    if (options[0]) options[0].textContent = t.none;
+    if (options[1]) options[1].textContent = t.gold;
+    if (options[2]) options[2].textContent = t.silver;
+    if (options[3]) options[3].textContent = t.bronze;
+    if (options[4]) options[4].textContent = t.diamond;
+  }
+  
+  // Sound
+  const sfxSelect = document.getElementById('sfxVolume');
+  if (sfxSelect) {
+    const options = sfxSelect.querySelectorAll('option');
+    if (options[0]) options[0].textContent = t.off;
+  }
+  
+  // FUK Rule
+  const fukSelect = document.getElementById('fukRule');
+  if (fukSelect) {
+    const options = fukSelect.querySelectorAll('option');
+    if (options[0]) options[0].textContent = t.on;
+    if (options[1]) options[1].textContent = t.off;
+  }
+}
+
+// === LANGUAGE - FIXED ===
+function setLanguage(lang) {
+  currentLang = lang;
+  saveData();
+  translatePage();
+  closeModal('languageModal');
+  console.log('✅ Language set to:', lang);
+}
+
+// === BOARD SETUP ===
+function initBoard() {
+  board = [];
+  for (let r = 0; r < 8; r++) {
+    board[r] = [];
+    for (let c = 0; c < 8; c++) {
+      board[r][c] = ((r + c) % 2 === 1) ? (r < 3 ? 2 : r > 4 ? 1 : 0) : 0;
+    }
+  }
+}
+
+function drawBoard() {
+  const boardEl = document.getElementById('board');
+  if (!boardEl) return;
+  const bt = boardThemes[currentBoard] || boardThemes[0];
+  const pt = pieceThemes[currentPiece] || pieceThemes[0];
+  const st = SHAPES[currentShape] || 'sh01';
+  boardEl.innerHTML = '';
+  cellsCache = [];
+  for (let r = 0; r < 8; r++) {
+    cellsCache[r] = [];
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell ' + ((r + c) % 2 === 0 ? 'white-cell' : 'black-cell');
+      cell.style.background = (r + c) % 2 === 0 ? bt[0] : bt[1];
+      if (selected && selected.r === r && selected.c === c) cell.classList.add('selected');
+      const v = board[r][c];
+      if (v !== 0) {
+        const piece = document.createElement('div');
+        piece.className = 'piece ' + st;
+        if (avatarFrame !== 'none') {
+          const frame = document.createElement('div');
+          frame.className = 'avatar-frame';
+          frame.style.borderColor = avatarFrame === 'gold' ? '#f1c40f' : avatarFrame === 'silver' ? '#c0c0c0' : avatarFrame === 'bronze' ? '#cd7f32' : '#b9f2ff';
+          piece.appendChild(frame);
+        }
+        if (fukAvailable && fukPiecePosition && fukPiecePosition.r === r && fukPiecePosition.c === c) {
+          piece.style.animation = 'pulse 0.5s infinite';
+          piece.style.border = '4px solid #e74c3c';
+          piece.style.boxShadow = '0 0 10px #e74c3c';
+        }
+        piece.style.background = (v === 1 || v === 3) ? pt[0] : pt[1];
+        piece.style.border = '2px solid ' + ((v === 1 || v === 3) ? '#999' : '#000');
+        piece.style.color = (v === 1 || v === 3) ? '#333' : '#fff';
+        piece.textContent = (v === 3 || v === 4) ? '👑' : (v === 1 ? '⚪' : '⚫');
+        cell.appendChild(piece);
+      }
+      cell.onclick = function() { initAudio(); click(r, c); };
+      boardEl.appendChild(cell);
+      cellsCache[r][c] = cell;
+    }
+  }
+}
+
+// === MOVES ===
+function getMoves(bs, r, c, piece) {
+  const moves = [];
+  const isKing = piece > 2;
+  const isWhite = piece === 1 || piece === 3;
+  const directions = isKing ? [[-1,-1], [-1,1], [1,-1], [1,1]] : (isWhite ? [[-1,-1], [-1,1]] : [[1,-1], [1,1]]);
+  directions.forEach(([dr,dc]) => {
+    if (isKing) {
+      let rr = r + dr, cc = c + dc;
+      while (rr >= 0 && rr < 8 && cc >= 0 && cc < 8 && bs[rr][cc] === 0) {
+        moves.push({toR: rr, toC: cc});
+        rr += dr; cc += dc;
+      }
+    } else {
+      const nr = r + dr, nc = c + dc;
+      if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8 && bs[nr][nc] === 0) {
+        moves.push({toR: nr, toC: nc});
+      }
+    }
+  });
+  return moves;
+}
+
+function getCaptures(bs, r, c, piece) {
+  const moves = [];
+  const isKing = piece > 2;
+  const isWhite = piece === 1 || piece === 3;
+  const directions = [[-1,-1], [-1,1], [1,-1], [1,1]];
+  directions.forEach(([dr,dc]) => {
+    if (isKing) {
+      let rr = r + dr, cc = c + dc, found = false, ep = null;
+      while (rr >= 0 && rr < 8 && cc >= 0 && cc < 8) {
+        const cell = bs[rr][cc];
+        if (cell === 0) {
+          if (found) moves.push({toR: rr, toC: cc, cR: ep.r, cC: ep.c});
+        } else if ((isWhite && (cell === 2 || cell === 4)) || (!isWhite && (cell === 1 || cell === 3))) {
+          if (found) break;
+          found = true;
+          ep = {r: rr, c: cc};
+        } else break;
+        rr += dr; cc += dc;
+      }
+    } else {
+      const mr = r + dr, mc = c + dc;
+      const jr = r + dr * 2, jc = c + dc * 2;
+      if (jr >= 0 && jr < 8 && jc >= 0 && jc < 8 && mr >= 0 && mr < 8 && mc >= 0 && mc < 8) {
+        const mid = bs[mr][mc], target = bs[jr][jc];
+        if (target === 0 && mid !== 0) {
+          const isOpponent = isWhite ? (mid === 2 || mid === 4) : (mid === 1 || mid === 3);
+          if (isOpponent) moves.push({toR: jr, toC: jc, cR: mr, cC: mc});
+        }
+      }
+    }
+  });
+  return moves;
+}
+
+function hasCaptures(player, bs = board) {
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = bs[r][c];
+      if (p === 0) continue;
+      if (player === 1 && (p !== 1 && p !== 3)) continue;
+      if (player === 2 && (p !== 2 && p !== 4)) continue;
+      const caps = getCaptures(bs, r, c, p);
+      if (caps.length > 0) return true;
+    }
+  }
+  return false;
+}
+
+function getAllMoves(player, bs = board) {
+  const moves = [];
+  const hasCap = hasCaptures(player, bs);
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = bs[r][c];
+      if (p === 0) continue;
+      if (player === 1 && (p !== 1 && p !== 3)) continue;
+      if (player === 2 && (p !== 2 && p !== 4)) continue;
+      const caps = getCaptures(bs, r, c, p);
+      caps.forEach(cap => moves.push({fromR: r, fromC: c, ...cap, isCapture: true}));
+      if (!hasCap) {
+        const regs = getMoves(bs, r, c, p);
+        regs.forEach(reg => moves.push({fromR: r, fromC: c, ...reg, isCapture: false}));
+      }
+    }
+  }
+  return moves;
+}
+
+function makeMove(r1, c1, r2, c2, move) {
+  const p = board[r1][c1];
+  board[r2][c2] = p;
+  board[r1][c1] = 0;
+  if (move.cR !== undefined) board[move.cR][move.cC] = 0;
+  if (p === 1 && r2 === 0) board[r2][c2] = 3;
+  if (p === 2 && r2 === 7) board[r2][c2] = 4;
+  moveHistory.push({board: board.map(row => row.map(cell => cell)), turn, captureChain});
+  drawBoard();
+  playMove();
+}
+
+function highlight(r, c) {
+  const moves = getMoves(board, r, c, board[r][c]).concat(getCaptures(board, r, c, board[r][c]));
+  moves.forEach(m => {
+    const cell = cellsCache[m.toR] && cellsCache[m.toR][m.toC];
+    if (cell) cell.classList.add('valid');
+  });
+}
+
+// === FUK RULE ===
+function triggerFuk(player) {
+  if (!fukRuleEnabled) return false;
+  if (capturesAvailableAtStart && !captureChain) {
+    for (let r = 0; r < 8; r++) {
+      for (let c = 0; c < 8; c++) {
+        const p = board[r][c];
+        if (p === 0) continue;
+        if (player === 1 && (p !== 1 && p !== 3)) continue;
+        if (player === 2 && (p !== 2 && p !== 4)) continue;
+        const caps = getCaptures(board, r, c, p);
+        if (caps.length > 0) {
+          fukAvailable = true;
+          fukPiecePosition = {r, c};
+          playFuk();
+          const msg = document.getElementById('fukMessage');
+          if (msg) {
+            msg.style.display = 'block';
+            msg.textContent = (TEXT[currentLang] || TEXT.ru).fukMessage;
+          }
+          drawBoard();
+          return true;
+        }
+      }
+    }
+  }
+  return false;
+}
+
+function executeFuk() {
+  if (!fukAvailable || !fukPiecePosition) return;
+  const {r, c} = fukPiecePosition;
+  board[r][c] = 0;
+  playCapture();
+  fukAvailable = false;
+  fukPiecePosition = null;
+  const msg = document.getElementById('fukMessage');
+  if (msg) msg.style.display = 'none';
+  drawBoard();
+  turn = turn === 1 ? 2 : 1;
+  updateStatus();
+  if (aiEnabled && turn === 2) {
+    isProcessing = true;
+    if (aiTimeoutId) clearTimeout(aiTimeoutId);
+    aiTimeoutId = setTimeout(aiMove, 500);
+  }
+}
+
+// === CLICK HANDLER ===
+function click(r, c) {
+  if (gameOver || isProcessing) return;
+  if (fukAvailable && fukPiecePosition && fukPiecePosition.r === r && fukPiecePosition.c === c) {
+    executeFuk();
+    return;
+  }
+  if (captureChain) {
+    if (r === captureChain.r && c === captureChain.c) return;
+    const caps = getCaptures(board, captureChain.r, captureChain.c, board[captureChain.r][captureChain.c]);
+    for (let cap of caps) {
+      if (cap.toR === r && cap.toC === c) {
+        makeMove(captureChain.r, captureChain.c, r, c, cap);
+        playCapture();
+        const more = getCaptures(board, r, c, board[r][c]);
+        if (more.length > 0) {
+          captureChain = {r, c};
+          selected = captureChain;
+          drawBoard();
+          return;
+        }
+        captureChain = null;
+        selected = null;
+        endTurn();
+        return;
+      }
+    }
+    return;
+  }
+  const v = board[r][c];
+  const isWhitePiece = (v === 1 || v === 3);
+  const isBlackPiece = (v === 2 || v === 4);
+  const isMyPiece = (turn === 1 && isWhitePiece) || (turn === 2 && isBlackPiece);
+  if (isMyPiece) {
+    selected = {r, c, v};
+    drawBoard();
+    highlight(r, c);
+    return;
+  }
+  if (selected) {
+    const moves = getMoves(board, selected.r, selected.c, selected.v).concat(getCaptures(board, selected.r, selected.c, selected.v));
+    const valid = moves.find(m => m.toR === r && m.toC === c);
+    if (valid) {
+      const wasCapture = (valid.cR !== undefined);
+      makeMove(selected.r, selected.c, r, c, valid);
+      if (wasCapture) {
+        playCapture();
+        const more = getCaptures(board, r, c, board[r][c]);
+        if (more.length > 0) {
+          captureChain = {r, c};
+          selected = captureChain;
+          drawBoard();
+          return;
+        }
+      } else {
+        triggerFuk(turn);
+      }
+      selected = null;
+      endTurn();
+    }
+  }
+}
+
+function undoMove() {
+  if (moveHistory.length === 0 || isProcessing) return;
+  playSound(349, 0.12, 'sawtooth');
+  const last = moveHistory.pop();
+  board = last.board.map(row => row.map(cell => cell));
+  turn = last.turn;
+  captureChain = last.captureChain;
+  fukAvailable = false;
+  fukPiecePosition = null;
+  const msg = document.getElementById('fukMessage');
+  if (msg) msg.style.display = 'none';
+  drawBoard();
+  updateStatus();
+}
+
+function endTurn() {
+  const msg = document.getElementById('fukMessage');
+  if (msg) msg.style.display = 'none';
+  if (checkGameOver()) return;
+  turn = turn === 1 ? 2 : 1;
+  capturesAvailableAtStart = hasCaptures(turn);
+  updateStatus();
+  drawBoard();
+  if (aiEnabled && turn === 2 && !isProcessing) {
+    isProcessing = true;
+    if (aiTimeoutId) clearTimeout(aiTimeoutId);
+    aiTimeoutId = setTimeout(aiMove, 500);
+  }
+}
+
+function checkGameOver() {
+  let wP = 0, bP = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = board[r][c];
+      if (p === 1 || p === 3) wP++;
+      else if (p === 2 || p === 4) bP++;
+    }
+  }
+  const moves = getAllMoves(turn);
+  const t = TEXT[currentLang] || TEXT.ru;
+  if (wP > 0 && bP > 0 && moves.length === 0) {
+    gameOver = true;
+    stats.total++; stats.draws++; stats.streak = 0;
+    saveData();
+    setTimeout(() => alert(t.draw), 100);
+    playWin();
+    return true;
+  }
+  if (wP === 0 || (turn === 1 && moves.length === 0)) {
+    gameOver = true;
+    stats.total++; stats.losses++; stats.streak = 0;
+    saveData();
+    setTimeout(() => alert(t.defeat), 100);
+    playWin();
+    return true;
+  }
+  if (bP === 0 || (turn === 2 && moves.length === 0)) {
+    gameOver = true;
+    stats.total++; stats.wins++; stats.streak++;
+    if (stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
+    saveData();
+    setTimeout(() => alert(t.victory), 100);
+    playWin();
+    return true;
+  }
+  return false;
+}
+
+function resetGame() {
+  if (aiTimeoutId) clearTimeout(aiTimeoutId);
+  initBoard();
+  selected = null;
+  captureChain = null;
+  turn = 1;
+  gameOver = false;
+  isProcessing = false;
+  moveHistory = [];
+  fukAvailable = false;
+  fukPiecePosition = null;
+  capturesAvailableAtStart = false;
+  const msg = document.getElementById('fukMessage');
+  if (msg) msg.style.display = 'none';
+  updateStatus();
+  drawBoard();
+}
+
+// === AI ===
+function evaluateBoard(bs, player) {
+  let score = 0;
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const p = bs[r][c];
+      if (p === 0) continue;
+      const isKing = p > 2;
+      const isBlack = p === 2 || p === 4;
+      let value = isKing ? 500 : 100;
+      if (r >= 2 && r <= 5 && c >= 2 && c <= 5) value += 20;
+      if (isBlack && r === 6) value += 50;
+      if (!isBlack && r === 1) value += 50;
+      const moves = getMoves(bs, r, c, p).length;
+      const caps = getCaptures(bs, r, c, p).length;
+      value += moves * 5 + caps * 20;
+      if (isBlack) score += value; else score -= value;
+    }
+  }
+  return player === 2 ? score : -score;
+}
+
+function minimax(bs, depth, alpha, beta, isMaximizing, player, maxDepth) {
+  if (depth === 0) return evaluateBoard(bs, player);
+  const currentPlayer = isMaximizing ? player : (player === 2 ? 1 : 2);
+  const moves = getAllMoves(currentPlayer, bs);
+  if (moves.length === 0) return isMaximizing ? -10000 : 10000;
+  moves.sort((a, b) => {
+    if (a.isCapture && !b.isCapture) return -1;
+    if (!a.isCapture && b.isCapture) return 1;
+    return 0;
+  });
+  if (isMaximizing) {
+    let maxEval = -Infinity;
+    for (let move of moves) {
+      const newBoard = bs.map(row => [...row]);
+      newBoard[move.toR][move.toC] = newBoard[move.fromR][move.fromC];
+      newBoard[move.fromR][move.fromC] = 0;
+      if (move.cR !== undefined) newBoard[move.cR][move.cC] = 0;
+      const p = newBoard[move.toR][move.toC];
+      if (p === 1 && move.toR === 0) newBoard[move.toR][move.toC] = 3;
+      if (p === 2 && move.toR === 7) newBoard[move.toR][move.toC] = 4;
+      const eval = minimax(newBoard, depth - 1, alpha, beta, false, player, maxDepth);
+      maxEval = Math.max(maxEval, eval);
+      alpha = Math.max(alpha, eval);
+      if (beta <= alpha) break;
+    }
+    return maxEval;
+  } else {
+    let minEval = Infinity;
+    for (let move of moves) {
+      const newBoard = bs.map(row => [...row]);
+      newBoard[move.toR][move.toC] = newBoard[move.fromR][move.fromC];
+      newBoard[move.fromR][move.fromC] = 0;
+      if (move.cR !== undefined) newBoard[move.cR][move.cC] = 0;
+      const p = newBoard[move.toR][move.toC];
+      if (p === 1 && move.toR === 0) newBoard[move.toR][move.toC] = 3;
+      if (p === 2 && move.toR === 7) newBoard[move.toR][move.toC] = 4;
+      const eval = minimax(newBoard, depth - 1, alpha, beta, true, player, maxDepth);
+      minEval = Math.min(minEval, eval);
+      beta = Math.min(beta, eval);
+      if (beta <= alpha) break;
+    }
+    return minEval;
+  }
+}
+
+function aiMove() {
+  if (gameOver || turn !== 2) {
+    isProcessing = false;
+    return;
+  }
+  const moves = getAllMoves(2);
+  if (moves.length === 0) {
+    gameOver = true;
+    stats.total++; stats.wins++; stats.streak++;
+    if (stats.streak > stats.bestStreak) stats.bestStreak = stats.streak;
+    saveData();
+    const t = TEXT[currentLang] || TEXT.ru;
+    setTimeout(() => alert(t.victory), 100);
+    playWin();
+    isProcessing = false;
+    return;
+  }
+  let bestMove = null;
+  let bestValue = -Infinity;
+  moves.sort((a, b) => {
+    if (a.isCapture && !b.isCapture) return -1;
+    if (!a.isCapture && b.isCapture) return 1;
+    return 0;
+  });
+  for (let move of moves) {
+    const newBoard = board.map(row => [...row]);
+    newBoard[move.toR][move.toC] = newBoard[move.fromR][move.fromC];
+    newBoard[move.fromR][move.fromC] = 0;
+    if (move.cR !== undefined) newBoard[move.cR][move.cC] = 0;
+    const p = newBoard[move.toR][move.toC];
+    if (p === 1 && move.toR === 0) newBoard[move.toR][move.toC] = 3;
+    if (p === 2 && move.toR === 7) newBoard[move.toR][move.toC] = 4;
+    const value = minimax(newBoard, aiDifficulty - 1, -Infinity, Infinity, false, 2, aiDifficulty);
+    if (value > bestValue) {
+      bestValue = value;
+      bestMove = move;
+    }
+  }
+  if (bestMove) {
+    makeMove(bestMove.fromR, bestMove.fromC, bestMove.toR, bestMove.toC, bestMove);
+    const moreCaptures = getCaptures(board, bestMove.toR, bestMove.toC, board[bestMove.toR][bestMove.toC]);
+    if (moreCaptures.length > 0) {
+      captureChain = {r: bestMove.toR, c: bestMove.toC};
+      drawBoard();
+      setTimeout(() => {
+        const nextCap = moreCaptures[0];
+        makeMove(captureChain.r, captureChain.c, nextCap.toR, nextCap.toC, nextCap);
+        playCapture();
+        const evenMore = getCaptures(board, nextCap.toR, nextCap.toC, board[nextCap.toR][nextCap.toC]);
+        if (evenMore.length > 0) {
+          captureChain = {r: nextCap.toR, c: nextCap.toC};
+          setTimeout(() => {
+            if (!gameOver) {
+              const finalCap = evenMore[0];
+              makeMove(captureChain.r, captureChain.c, finalCap.toR, finalCap.toC, finalCap);
+              playCapture();
+              captureChain = null;
+              endTurn();
+              isProcessing = false;
+            }
+          }, 500);
+        } else {
+          captureChain = null;
+          endTurn();
+          isProcessing = false;
+        }
+      }, 500);
+      return;
+    }
+  } else {
+    const move = moves[0];
+    makeMove(move.fromR, move.fromC, move.toR, move.toC, move);
+  }
+  endTurn();
+  isProcessing = false;
+}
+
+function renderStats() {
+  document.getElementById('statTotal').textContent = stats.total;
+  document.getElementById('statWins').textContent = stats.wins;
+  document.getElementById('statLosses').textContent = stats.losses;
+  document.getElementById('statDraws').textContent = stats.draws;
+  document.getElementById('statWinRate').textContent = stats.total > 0 ? Math.round((stats.wins/stats.total)*100) + '%' : '0%';
+  document.getElementById('statStreak').textContent = stats.streak;
+}
+
+function updateStatus() {
+  const el = document.getElementById('status');
+  if (!el) return;
+  const t = TEXT[currentLang] || TEXT.ru;
+  if (aiEnabled) {
+    el.textContent = turn === 1 ? t.status : t.aiTurn;
+  } else {
+    el.textContent = turn === 1 ? t.whiteTurn : t.blackTurn;
+  }
+}
+
+// === CONTROLS ===
+function toggleMode() {
+  aiEnabled = !aiEnabled;
+  const btn = document.getElementById('btnAi');
+  if (btn) {
+    btn.classList.toggle('active', !aiEnabled);
+    const t = TEXT[currentLang] || TEXT.ru;
+    btn.textContent = aiEnabled ? t.btnAI : '👤 2P';
+  }
+  resetGame();
+}
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const btn = document.getElementById('btnSound');
+  if (btn) {
+    const t = TEXT[currentLang] || TEXT.ru;
+    btn.textContent = soundEnabled ? t.btnSound : '🔇 ' + t.off;
+  }
+}
+
+function updateSFXVolume() {
+  sfxVolume = parseInt(document.getElementById('sfxVolume').value);
+  saveData();
+}
+
+function updateFukRule() {
+  fukRuleEnabled = document.getElementById('fukRule').value === 'on';
+  saveData();
+}
+
+function updateAIDifficulty() {
+  aiDifficulty = parseInt(document.getElementById('aiDifficulty').value);
+  saveData();
+}
+
+function updateAvatarFrame() {
+  avatarFrame = document.getElementById('avatarFrame').value;
+  saveData();
+  drawBoard();
+}
+
+function donate(amount) {
+  initAudio();
+  if (confirm(`Support with $${amount}?`)) {
+    alert(`✅ Thank you for $${amount}!`);
+    closeModal('donateModal');
+  }
+}
+
+// === MODALS ===
+function openModal(type) {
+  initAudio();
+  if (type === 'stats') { renderStats(); document.getElementById('statsModal').classList.add('active'); return; }
+  if (type === 'settings') {
+    document.getElementById('sfxVolume').value = sfxVolume;
+    document.getElementById('fukRule').value = fukRuleEnabled ? 'on' : 'off';
+    document.getElementById('aiDifficulty').value = aiDifficulty;
+    document.getElementById('avatarFrame').value = avatarFrame;
+    document.getElementById('settingsModal').classList.add('active');
+    return;
+  }
+  if (type === 'donate') { document.getElementById('donateModal').classList.add('active'); return; }
+  if (type === 'rules') { document.getElementById('rulesModal').classList.add('active'); return; }
+  if (type === 'language') { document.getElementById('languageModal').classList.add('active'); return; }
+  if (type === 'shapes') { renderShapes(); document.getElementById('shapesModal').classList.add('active'); return; }
+  if (type === 'board') { renderThemes('boardThemesGrid', boardThemes, 'board'); document.getElementById('boardModal').classList.add('active'); return; }
+  if (type === 'piece') { renderThemes('pieceThemesGrid', pieceThemes, 'piece'); document.getElementById('pieceModal').classList.add('active'); return; }
+}
+
+function closeModal(id) {
+  const modal = document.getElementById(id);
+  if (modal) modal.classList.remove('active');
+}
+
+function renderShapes() {
+  const grid = document.getElementById('shapesGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  SHAPES.forEach((shape, i) => {
+    const div = document.createElement('div');
+    div.className = 'theme-opt' + (currentShape === i ? ' active' : '');
+    div.innerHTML = '<div class="piece ' + shape + '" style="background:#fff;border:2px solid #333;width:35px;height:35px"></div>';
+    div.onclick = () => { currentShape = i; saveData(); drawBoard(); closeModal('shapesModal'); };
+    grid.appendChild(div);
+  });
+}
+
+function renderThemes(containerId, themes, type) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  container.innerHTML = '';
+  const current = type === 'board' ? currentBoard : currentPiece;
+  themes.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'theme-opt' + (i === current ? ' active' : '');
+    div.style.background = type === 'board' ? 'linear-gradient(135deg,' + t[0] + ',' + t[1] + ')' : t[0];
+    div.textContent = i + 1;
+    div.onclick = () => {
+      if (type === 'board') currentBoard = i; else currentPiece = i;
+      saveData(); drawBoard(); closeModal(type + 'Modal');
+    };
+    container.appendChild(div);
+  });
+}
+
+// === INIT ===
+window.onload = function() {
+  console.log('🎮 Game starting...');
+  try {
+    loadData();
+    initBoard();
+    drawBoard();
+    translatePage();
+    renderStats();
+    console.log('✅ Languages FIXED!');
+    console.log('✅ Current language:', currentLang);
+    console.log('✅ 5 languages: RU, EN, ES, FR, DE');
+  } catch(e) {
+    console.error('❌ Error:', e);
+  }
+};
+</script>
+</body>
+</html>
